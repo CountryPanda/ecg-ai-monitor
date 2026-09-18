@@ -1,0 +1,94 @@
+INTERFACING ECG SENSOR WITH RASPBERRY PI
+
+Introduction
+This section covers interfacing an AD8232 ECG sensor with a Raspberry Pi 3 B+ as part of the ECG AI project's Unit 1 (signal acquisition unit). The sensor captures electrical activity from the heart via electrodes; this raw analog signal is digitized through an MCP3008 ADC and read by the Pi over SPI.
+
+Problem Statement
+Obtain ECG sensor ADC values using the AD8232, via the MCP3008 ADC, on Raspberry Pi 3 B+.
+
+Requirements
+- Raspberry Pi 3 B+
+- AD8232 ECG sensor
+- MCP3008 ADC IC
+- Micro-USB power cable
+- Jumper wires
+- Breadboard
+- 3-lead ECG cable + disposable electrode pads
+
+Working
+The AD8232 outputs an analog voltage representing cardiac electrical activity. The MCP3008 converts this to a 10-bit digital value (0-1023), which the Raspberry Pi reads over SPI and prints to the terminal. Leads-off detection (LO+/LO-) confirms electrode contact before each reading.
+
+Circuit Diagram / Wiring
+- MCP3008 VDD (Pin 16) -> Pi 3V3 (Pin 1)
+- MCP3008 VREF (Pin 15) -> Pi 3V3 rail
+- MCP3008 AGND (Pin 14) -> Pi GND (Pin 6)
+- MCP3008 CLK (Pin 13) -> Pi GPIO11 / SCLK (Pin 23)
+- MCP3008 DOUT (Pin 12) -> Pi GPIO9 / MISO (Pin 21)
+- MCP3008 DIN (Pin 11) -> Pi GPIO10 / MOSI (Pin 19)
+- MCP3008 CS/SHDN (Pin 10) -> Pi GPIO8 / CE0 (Pin 24)
+- MCP3008 DGND (Pin 9) -> Pi GND rail
+- MCP3008 CH0 (Pin 1) -> AD8232 OUTPUT
+- AD8232 3.3V/VCC -> shared 3.3V rail
+- AD8232 GND -> shared GND rail
+- AD8232 LO+ -> Pi GPIO17
+- AD8232 LO- -> Pi GPIO27
+
+Note: AD8232 boards typically also have an unused SDN/extra electrode pad near GND - left unconnected, as it duplicates the 3.5mm jack already in use.
+
+Code
+File: ecgadcvalues.py
+
+import spidev
+import time
+import RPi.GPIO as GPIO
+
+spi = spidev.SpiDev()
+spi.open(0, 0)
+spi.max_speed_hz = 1000000
+
+AD8232_LO_POS_PIN = 17
+AD8232_LO_NEG_PIN = 27
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(AD8232_LO_POS_PIN, GPIO.IN)
+GPIO.setup(AD8232_LO_NEG_PIN, GPIO.IN)
+
+def read_adc(channel):
+    adc_command = [0x01, (0x80 | channel) << 4, 0x00]
+    adc_data = spi.xfer2(adc_command)
+    adc_value = ((adc_data[1] & 0x03) << 8) + adc_data[2]
+    return adc_value
+
+timestamps = []
+adc_values = []
+
+while True:
+    try:
+        lo_pos_status = GPIO.input(AD8232_LO_POS_PIN)
+        lo_neg_status = GPIO.input(AD8232_LO_NEG_PIN)
+
+        if lo_pos_status == 1 or lo_neg_status == 1:
+            print("Leads off detection triggered!")
+        else:
+            adc_value = read_adc(0)
+            print("VALUE: ", adc_value)
+            timestamps.append(time.time())
+            adc_values.append(adc_value)
+        time.sleep(0.5)
+
+    except KeyboardInterrupt:
+        break
+
+spi.close()
+GPIO.cleanup()
+
+Run with:
+python3 ecgadcvalues.py
+
+Output
+Confirmed working - terminal displayed live fluctuating ADC values (e.g., 138, 100, 314, 335, 723), with correct "Leads off detection triggered!" messages when electrode contact was lost, validating both the SPI acquisition path and the leads-off detection circuit.
+
+A supplementary script, ecg_plot.py, was also built to visualize the raw signal live using matplotlib (run via HDMI-connected desktop session) - confirmed rendering a live-updating waveform.
+
+Conclusion
+The AD8232-MCP3008-Raspberry Pi acquisition chain was successfully assembled, wired, and verified for Unit 1 of the ECG AI project. Raw ADC values representing cardiac electrical activity are now being captured reliably, with leads-off detection preventing false/noisy readings during poor electrode contact. This raw signal is ready to be handed off to the next stage: filtering, R-peak detection, and heart-rate calculation (M2/M4 responsibility).
