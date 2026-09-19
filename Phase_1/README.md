@@ -6,7 +6,7 @@ Unit 1 acquires raw ECG signal using an AD8232 sensor and an MCP3008 ADC, read b
 ## Hardware
 - Raspberry Pi 3 B+ (`ecg-unit1`)
 - AD8232 ECG sensor
--
+
   <img width="345" height="340" alt="ecg-3" src="https://github.com/user-attachments/assets/e2f76d12-6162-48af-b666-c11bb2de82a0" />
 
 - MCP3008 10-bit ADC
