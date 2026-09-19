@@ -1,4 +1,4 @@
-# M1 – Hardware Setup & ECG Acquisition (Unit 1)
+# Hardware Setup & ECG Acquisition (Unit 1)
 
 ## Overview
 Unit 1 acquires raw ECG signal using an AD8232 sensor and an MCP3008 ADC, read by a Raspberry Pi 3 B+ over SPI. This covers Phase 1 (Weeks 1-4) of the project: hardware assembly, wiring, and first successful live signal capture.
@@ -59,5 +59,5 @@ Unit 1 acquires raw ECG signal using an AD8232 sensor and an MCP3008 ADC, read b
 - AD8232 boards may include a spare unused pad near GND (duplicate electrode connector, alternate to the 3.5mm jack) — safe to leave unconnected
 
 ## Status
-✅ Phase 1 milestone met: "Live ECG signal successfully captured and displayed"
+  Phase 1 milestone met: "Live ECG signal successfully captured and displayed"
 **Next:** hand off to M2/M4 for filtering, R-peak detection, and heart-rate calculation.
