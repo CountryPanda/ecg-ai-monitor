@@ -41,7 +41,7 @@ ECG Electrodes → AD8232 Front-End → ADC → Unit 1 (Acquisition + Filtering)
 
 **Compute:** 2 × Raspberry Pi 3 B+, 2 × 16 GB microSD cards, 2 × Pi power adapters
 
-**Sensing and conversion:** AD8232 ECG sensor, ADC, ECG electrodes and cable
+**Sensing and conversion:** AD8232 ECG sensor, MCP3008, ECG electrodes and cable
 
 **Display and logging:** Raspberry Pi Display, RTC module
 
