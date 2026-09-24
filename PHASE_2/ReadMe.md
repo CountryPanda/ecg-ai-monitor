@@ -160,14 +160,6 @@ Heartbeat Classification
 Software Display / Alerts
 ```
 
-## Repository Structure
-
-```text
-ML_Model/
-├── Copy_of_ML_Model.ipynb
-└── README.md
-```
-
 ## Technologies Used
 
 - Python
